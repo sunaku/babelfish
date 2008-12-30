@@ -1,0 +1,74 @@
+#!/usr/bin/ruby
+#
+# Command-line interface to the Ruby BabelFish library.
+#
+# * The standard input stream will be read if an input file is not specified.
+#
+# * The result of translation will be written to the standard output stream.
+#
+# Usage:
+#
+#   babelfish [Option...] InputLanguage OutputLanguage [InputFile]
+#
+
+$LOAD_PATH.unshift File.join(File.dirname(__FILE__), '..', 'lib')
+require 'babelfish'
+
+##
+# command line
+#
+
+require 'rubygems'
+require 'trollop'
+
+opts = Trollop.options do
+  # show program description located at the top of this file
+  banner File.read(__FILE__)[/\A.*?^$\n/m].
+         gsub(/^# ?/, '').sub(/\A.*?\n/, '')
+  banner ''
+
+  # show list of available languages
+  banner 'Languages:'
+  BabelFish::LANGUAGE_NAMES.each_pair do |code, name|
+    banner '%13s  :  %s' % [code, name]
+  end
+  banner ''
+
+  # show list of available language combinations
+  banner 'Input-Output Language Combinations:'
+  BabelFish::LANGUAGE_PAIRS.each_pair do |src, dsts|
+    dsts.each do |dst|
+      banner '%8s %4s  :  %s to %s' % [
+        src, dst,
+        BabelFish::LANGUAGE_NAMES[src],
+        BabelFish::LANGUAGE_NAMES[dst]
+      ]
+    end
+  end
+  banner ''
+
+  # show list of command-line options
+  banner 'Options:'
+  opt :encoding, 'Encoding of the result of translation.', :default => 'utf-8'
+
+  # show program version information
+  version [
+    "project: #{BabelFish::PROJECT}",
+    "version: #{BabelFish::VERSION}",
+    "release: #{BabelFish::RELEASE}",
+    "website: #{BabelFish::WEBSITE}",
+    "install: #{BabelFish::INSTALL}",
+  ].join("\n")
+end
+
+##
+# program body
+#
+
+input_code = ARGV.shift or
+raise ArgumentError, 'InputLanguage was not specified'
+
+output_code = ARGV.shift or
+raise ArgumentError, 'OutputLanguage was not specified'
+
+puts BabelFish.translate(ARGF.read, input_code, output_code, opts[:encoding])
