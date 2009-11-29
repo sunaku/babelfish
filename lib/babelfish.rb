@@ -70,6 +70,15 @@ module BabelFish
     )
 
     doc = Hpricot(output_page.body)
-    (doc / '#result' / 'div').inner_html
+    res = (doc / '#result' / 'div').inner_html
+
+    if res.respond_to? :encoding
+      res = eval(
+        "# encoding: #{output_encoding}\n#{res.inspect}",
+        TOPLEVEL_BINDING, __FILE__, __LINE__
+      )
+    end
+
+    res
   end
 end
