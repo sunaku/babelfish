@@ -10,7 +10,7 @@ task :doc
 # user manual
 task :doc => 'index.html'
 
-file 'index.html' => 'README' do |t|
+file 'index.html' => 'README.md' do |t|
   sh 'maruku', t.prerequisites[0], '-o', t.name
 end
 
